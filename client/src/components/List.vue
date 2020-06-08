@@ -1,6 +1,6 @@
 <template>
     <div>
-        <ul class="list-group w-25" style="margin: auto;">
+        <ul class="list-group w-25" style="margin: auto;min-width: 300px;">
             <span v-if="!deleteMode">
                 <button @click='redirect(pack._id)' v-for='pack in packs' :key='pack._id' class="list-group-item list-group-item-action d-flex justify-content-between align-items-center" style="cursor: pointer;">
                     {{ pack.name }}

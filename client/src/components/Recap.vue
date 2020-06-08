@@ -1,6 +1,6 @@
 <template>
   <div>
-      <ul class="list-group w-25" style="margin: auto;">
+      <ul class="list-group w-25" style="margin: auto;min-width: 300px;">
                 <li class="list-group-item justify-content-between align-items-center text-center bg-light">
                     {{this.nbOk}} / {{this.recap.length}}
                 </li>
@@ -21,6 +21,8 @@
                     {{this.nbOk}} / {{this.recap.length}}
                 </li>
         </ul>
+        <button class="btn btn-outline-warning mt-3" @click='reload()'>Relancer avec les même mots</button><br />
+        <button class="btn btn-outline-danger mt-3" @click='reloadErrors()' v-if="nbOk-recap.length!=0">Relancer uniquement les erreurs</button><br />
         <button class="btn btn-outline-info mt-3" @click='back()'>Retour à la liste des mots</button>
   </div>
 </template>
@@ -42,11 +44,29 @@ export default {
               this.nbOk++;
           }
       }
+      console.log(this.$store.state.revisionWords);
   },
 
   methods: {
       back(){
           this.$router.push({ name: 'ListWord', params: { packId: this.$store.state.packId }});
+      },
+
+      reload(){
+          this.$router.push({
+              name: 'Revision'
+          })
+      },
+
+      reloadErrors(){
+          var wordsError = [];
+          for(var i = 0 ; i < this.recap.length ; i++){
+            if(this.recap[i].error){
+                wordsError.push(this.$store.state.revisionWords[i]);
+            }
+          }
+          this.$store.state.revisionWords = wordsError;
+          this.reload();
       }
   }
 }
