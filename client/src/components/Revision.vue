@@ -73,6 +73,8 @@ export default {
               () => {document.getElementById('currentResponse').focus();},
               100
           )
+
+          console.log(this.cpt + ' - ' + this.words.length);
           
       },
 
@@ -85,7 +87,11 @@ export default {
       switch (e.keyCode) {
         case 13:
             if(this.answered){
+              if(this.cpt === this.words.length-1){
+                this.recap();
+              } else {
                 this.nextWord();
+              }
             } else {
                 this.checkCurrentResponse();
             }

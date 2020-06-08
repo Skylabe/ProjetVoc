@@ -1,14 +1,17 @@
 <template>
     <div>
         <button class="btn btn-outline-success mb-3 " @click='learnAll()'>Réviser tous les mots</button>
+        <button v-if="selectedWords.length > 0" class="btn btn-outline-info mb-3" @click='learnSelected()'>Réviser les {{selectedWords.length}} mots sélectionnés</button>
         <table class="table table-hover">
             <thead>
+                <th><input type="checkbox" v-on:change="allOrClean()" /></th>
                 <th>Mot origine</th>
                 <th>Mot traduction</th>
                 <th>Actions</th>
             </thead>
             <tbody>
                 <tr v-for='word in words' :key='word._id'>
+                    <td><input type="checkbox" v-on:change="selectWords(word)" /></td>
                     <td>{{ word.originalWord }}</td>
                     <td>{{ word.tradWord }}</td>
                     <td>
@@ -91,7 +94,8 @@ export default {
               originalWord: '',
               tradWord: ''
       },
-      isEdit: false
+      isEdit: false,
+      selectedWords: []
     }
   },
   mounted () {
@@ -209,6 +213,42 @@ export default {
           this.$router.push({
               name: 'Revision'
           })
+      },
+
+      learnSelected(){
+          this.$store.state.revisionWords = this.selectedWords;
+          this.$router.push({
+              name: 'Revision'
+          })
+      },
+
+      selectWords(word){
+          if(this.selectedWords.indexOf(word) >= 0){
+              this.selectedWords.splice(this.selectedWords.indexOf(word), 1);
+          } else {
+              this.selectedWords.push(word);
+          }
+          
+      },
+
+      allOrClean(){
+          if(this.selectedWords.length === this.words.length){
+              var inputs = document.getElementsByTagName("input");
+                for(var i = 0; i < inputs.length; i++) {
+                    if(inputs[i].type == "checkbox") {
+                        inputs[i].checked = false; 
+                    }  
+                }
+              this.selectedWords = [];
+          } else {
+              var inputs = document.getElementsByTagName("input");
+                for(var i = 0; i < inputs.length; i++) {
+                    if(inputs[i].type == "checkbox") {
+                        inputs[i].checked = true; 
+                    }  
+                }
+                this.selectedWords = this.words;
+          }
       }
   }
   
