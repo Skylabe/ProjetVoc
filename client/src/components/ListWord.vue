@@ -1,5 +1,6 @@
 <template>
     <div>
+        <button class="btn btn-outline-success mb-3 " @click='learnAll()'>Réviser tous les mots</button>
         <table class="table table-hover">
             <thead>
                 <th>Mot origine</th>
@@ -79,6 +80,7 @@
 </template>
 
 <script>
+import {mapMutation} from 'vuex';
 export default {
   name: 'ListWord',
   data () {
@@ -199,6 +201,14 @@ export default {
                   }
               );
           }
+      },
+
+
+      learnAll(){
+          this.$store.state.revisionWords = this.words;
+          this.$router.push({
+              name: 'Revision'
+          })
       }
   }
   
