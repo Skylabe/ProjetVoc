@@ -1,6 +1,9 @@
 <template>
   <div>
       <ul class="list-group w-25" style="margin: auto;">
+                <li class="list-group-item justify-content-between align-items-center text-center bg-light">
+                    {{this.nbOk}} / {{this.recap.length}}
+                </li>
                 <li v-for='e in recap' :key='e.tradWord' class="list-group-item d-flex justify-content-between align-items-center">
                     {{ e.originalWord }}
                     <span>
