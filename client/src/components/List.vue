@@ -103,8 +103,8 @@ export default {
      },
 
      redirect(id){
-        window.location = '#/listWord/'+id;
-         //this.router.push({ name: 'ListWord', params: { packId: id }});
+         this.$store.state.packId = id;
+        this.$router.push({ name: 'ListWord', params: { packId: id }});
      }
 
   }
