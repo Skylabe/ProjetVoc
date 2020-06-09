@@ -1,10 +1,33 @@
 <template>
   <div>
-      <ul class="list-group w-25" style="margin: auto;min-width: 300px;">
+      <button class="btn btn-outline-danger mb-3" @click='onlyError=!onlyError' v-if="!onlyError">Afficher uniquement les erreurs</button>
+      <button class="btn btn-outline-danger mb-3" @click='onlyError=!onlyError' v-if="onlyError">Afficher tous les mots</button>
+      <ul class="list-group w-25" style="margin: auto;min-width: 300px;" v-if='!onlyError'>
                 <li class="list-group-item justify-content-between align-items-center text-center bg-light">
                     {{this.nbOk}} / {{this.recap.length}}
                 </li>
                 <li v-for='e in recap' :key='e.tradWord' class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ e.originalWord }}
+                    <span>
+                        <span v-bind:class="{ 'text-success': !e.error, 'text-danger line': e.error }">
+                            {{ e.answer }}
+                        </span>
+                        <span v-if="e.error">
+                            &nbsp;- <span  class="text-success">
+                                {{ e.tradWord }}
+                            </span>
+                        </span>
+                    </span>
+                </li>
+                <li class="list-group-item justify-content-between align-items-center text-center bg-light">
+                    {{this.nbOk}} / {{this.recap.length}}
+                </li>
+        </ul>
+        <ul class="list-group w-25" style="margin: auto;min-width: 300px;" v-if="onlyError">
+                <li class="list-group-item justify-content-between align-items-center text-center bg-light">
+                    {{this.nbOk}} / {{this.recap.length}}
+                </li>
+                <li v-for='e in recapError' :key='e.tradWord' class="list-group-item d-flex justify-content-between align-items-center">
                     {{ e.originalWord }}
                     <span>
                         <span v-bind:class="{ 'text-success': !e.error, 'text-danger line': e.error }">
@@ -33,7 +56,9 @@ export default {
   data () {
     return {
         recap: [],
-        nbOk: 0
+        nbOk: 0,
+        onlyError: false,
+        recapError: []
     }
   },
 
@@ -42,9 +67,10 @@ export default {
       for(var i = 0 ; i < this.recap.length ; i++){
           if(!this.recap[i].error){
               this.nbOk++;
+          } else {
+              this.recapError.push(this.recap[i]);
           }
       }
-      console.log(this.$store.state.revisionWords);
   },
 
   methods: {
