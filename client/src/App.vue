@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <a href="http://192.168.0.55:8080/#/index"><img src="./assets/logoJapan.png" style="width: 250px;"></a>
+	<h1>What's in my kitchen ?</h1>
+    <!--<a href="http://192.168.1.14:8080/#/index"><img src="./assets/logoJapan.png" style="width: 250px;"></a>-->
     <router-view/>
   </div>
 </template>

@@ -4,8 +4,9 @@ const body = require('body-parser');
 
 const Words = require('./words'); // on importe notre model
 const Pack = require('./pack');
+const Food = require('./food');
  
-mongoose.connect('mongodb://127.0.0.1:27017/words', {useNewUrlParser: true});
+mongoose.connect('mongodb+srv://root:root@kitchen.dj3ag6n.mongodb.net/?retryWrites=true&w=majority', {useNewUrlParser: true});
 
 let app = express(); // création de l'objet représentant notre application express
 app.use(body());
@@ -14,7 +15,7 @@ let port = 8081;
 app.use(function (req, res, next) {
 
     // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', 'http://192.168.0.55:8080');
+    res.setHeader('Access-Control-Allow-Origin', '*');
 
     // Request methods you wish to allow
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -133,6 +134,38 @@ app.patch('/updatePackNumber/:id/:type', async(req, res) => {
     await pack.save() // on sauvegarde les modifications
      
     res.json(pack)
+});
+
+app.post('/addFood', async (req, res) => {
+    const name = req.body.name; // récupération des variables du body
+    const expiration = req.body.expiration;
+    const quantity = req.body.quantity;
+    const unit = req.body.unit;
+    const categories = req.body.categories;
+    const storage = req.body.storage;
+ 
+    if (!name) { // on vérifie que les trois variables sont présentes
+        res.send('Il manque un argument obligatoire');
+        return;
+    }
+ 
+    const newFood = new Food({ // création d'un objet représentant notre nouveau livre
+        name: name,
+		expiration: expiration,
+		quantity: quantity,
+		unit: unit,
+		categories: categories,
+		storage: storage
+    });
+     
+    await newFood.save() // sauvegarde asynchrone du nouveau livre
+    res.json(newFood)
+    return;
+});
+
+app.get('/getAllFoods', async (req, res) => {
+    const foods = await Food.find(); // On récupère tout les livres
+    await res.json(foods);
 });
  
 app.listen(port, () =>  { // ecoute du serveur sur le port 8080

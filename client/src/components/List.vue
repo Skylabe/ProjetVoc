@@ -59,7 +59,7 @@ export default {
     }
   },
   mounted () {
-      this.$http.get('http://192.168.0.55:8081/getAllPacks')
+      this.$http.get('http://192.168.1.14:8081/getAllPacks')
       .then((result) => {
         this.packs = result.data;
       },
@@ -69,7 +69,7 @@ export default {
   },
   methods: {
      save(){
-         this.$http.post('http://192.168.0.55:8081/addPack', {name: this.packName}).then(
+         this.$http.post('http://192.168.1.14:8081/addPack', {name: this.packName}).then(
              (result) => {
                  this.packs.push(result.data);
                   $('#modalEdit').modal('hide');
@@ -87,7 +87,7 @@ export default {
      },
 
      deletePack(id){
-         this.$http.delete('http://192.168.0.55:8081/deletePack/'+id).then(
+         this.$http.delete('http://192.168.1.14:8081/deletePack/'+id).then(
               () => {
                   for(var i = 0 ; i < this.packs.length ; i++){
                     if(this.packs[i]._id === id ){

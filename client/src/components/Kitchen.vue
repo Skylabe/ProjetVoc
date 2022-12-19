@@ -1,28 +1,24 @@
 <template>
     <div>
-        <button class="btn btn-outline-success mb-3 " @click='learnAll()'>Réviser tous les mots</button>
-        <button v-if="selectedWords.length > 0" class="btn btn-outline-info mb-3" @click='learnSelected()'>Réviser les {{selectedWords.length}} mots sélectionnés</button>
         <table class="table table-hover">
             <thead>
-                <th><input type="checkbox" v-on:change="allOrClean()" /></th>
-                <th>Mot origine</th>
-                <th>Mot traduction</th>
-                <th>Actions</th>
+                <th>Nom</th>
+                <th>Date de péremption</th>
+                <th>Quantité</th>
+				<th>Catégories</th>
+				<th>Rangement</th>
             </thead>
             <tbody>
-                <tr v-for='word in words' :key='word._id'>
-                    <td><input type="checkbox" v-on:change="selectWords(word)" /></td>
-                    <td>{{ word.originalWord }}</td>
-                    <td>{{ word.tradWord }}</td>
-                    <td>
-                        <button class="btn btn-success btn-xs" @click='modalEdit(word._id)'><i class="far fa-edit"></i></button>
-                        <button class="btn btn-danger btn-xs" @click='modalDeleteWord(word._id)'><i class="fas fa-trash"></i></button>
-                    </td>
+                <tr v-for='food in foods' :key='food._id'>
+                    <td>{{ food.name }}</td>
+                    <td>{{ food.expiration }}</td>
+                    <td>{{ food.quantity + (food.unit == "percent" ? "%" : " pièce(s)") }}</td>
+                    <td>{{ food.categories.join(", ") }}</td>
+                    <td>{{ food.storage }}</td>
                 </tr>
             </tbody>
         </table>
-        <button class="btn btn-outline-primary" @click='modalEdit(null)'><i class="fas fa-plus-circle mr-1"></i> Ajouter un nouveau mot</button><br />
-        <a href="#/list">Retour à la liste des packs</a>
+        <button class="btn btn-outline-primary" @click='modalEdit(null)'><i class="fas fa-plus-circle"></i> Ajouter un nouvel aliment</button>
 
 
         <!-- ===================== DEBUT DIALOGS DELETE ===================== -->
@@ -53,7 +49,7 @@
             <div class="modal-dialog modal-dialog-centered" role="document">
                 <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title"><span v-if="selectedWordId === null">Ajouter</span><span v-if="selectedWordId !== null">Modifier</span> mot</h5>
+                    <h5 class="modal-title"><span v-if="selectedWordId === null">Ajouter</span><span v-if="selectedWordId !== null">Modifier</span> aliment</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                     </button>
@@ -61,12 +57,28 @@
                 <div class="modal-body">
                     <form>
                         <div class="form-group row">
-                            <label for="originalWord" class="col-4">Mot origine</label>
-                            <input type="text" class="form-control col-7" id="originalWord" v-model="currentWord.originalWord">
+                            <label for="name" class="col-4">Nom</label>
+                            <input type="text" class="form-control col-7" id="name" v-model="currentFood.name">
                         </div>
                         <div class="form-group row">
-                            <label for="tradWord" class="col-4">Mot traduction</label>
-                            <input type="text" class="form-control col-7" id="tradWord" v-model="currentWord.tradWord">
+                            <label for="expiration" class="col-4">Péremption</label>
+                            <input type="date" class="form-control col-7" id="expiration" v-model="currentFood.expiration">
+                        </div>
+						<div class="form-group row">
+                            <label for="quantity" class="col-4">Quantité</label>
+                            <input type="number" class="form-control col-5" id="quantity" v-model="currentFood.quantity">
+							<select class="form-control col-2" id="unit" v-model="currentFood.unit">
+								<option value="pieces">pc</option>
+								<option value="percent">%</option>
+							</select>
+                        </div>
+						<div class="form-group row">
+                            <label for="categories" class="col-4">Catégories</label>
+                            <input type="text" class="form-control col-7" id="categories" v-model="currentFood.categories" placeholder="Séparer par une virgule">
+                        </div>
+						<div class="form-group row">
+                            <label for="storage" class="col-4">Rangement</label>
+                            <input type="text" class="form-control col-7" id="storage" v-model="currentFood.storage">
                         </div>
                     </form>
                 </div>
@@ -83,25 +95,28 @@
 </template>
 
 <script>
-import {mapMutation} from 'vuex';
 export default {
-  name: 'ListWord',
+  name: 'Kitchen',
   data () {
     return {
-      words: [],
+      foods: [],
       selectedWordId: null,
-      currentWord: {
-              originalWord: '',
-              tradWord: ''
-      },
+      currentFood: {
+		name: '',
+		expiration: '',
+		quantity: 0,
+		unit: 'percent',
+		categories: '',
+		storage: ''
+	  },
       isEdit: false,
       selectedWords: []
     }
   },
   mounted () {
-      this.$http.get('http://192.168.1.14:8081/getWordsPack/'+this.$route.params.packId)
+      this.$http.get('http://192.168.1.14:8081/getAllFoods')
       .then((result) => {
-        this.words = result.data;
+        this.foods = result.data;
       },
       (error) => {
           console.log(error);
@@ -146,9 +161,13 @@ export default {
 
           $('#modalEdit').modal('show');
 
-          this.currentWord = {
-              originalWord: '',
-              tradWord: ''
+          this.currentFood = {
+              name: '',
+              expiration: '',
+			  quantity: 0,
+			  unit: 'percent',
+			  categories: '',
+			  storage: ''
           };
           if(this.selectedWordId) {
               for(var i = 0 ; i < this.words.length ; i++){
@@ -163,7 +182,6 @@ export default {
 
       edit() {
           if(this.isEdit){
-              console.log(this.currentWord);
               this.$http.patch('http://192.168.1.14:8081/editWord/'+this.selectedWordId, {
                   originalWord: this.currentWord.originalWord,
                   tradWord: this.currentWord.tradWord,
@@ -185,15 +203,18 @@ export default {
                   }
               );
           } else {
-              this.$http.post('http://192.168.1.14:8081/addWord', {
-                  originalWord: this.currentWord.originalWord,
-                  tradWord: this.currentWord.tradWord,
-                  packId: this.$route.params.packId
+              this.$http.post('http://192.168.1.14:8081/addFood', {
+            		name: this.currentFood.name,
+					expiration: this.currentFood.expiration,
+					quantity: this.currentFood.quantity,
+					unit: this.currentFood.unit,
+					categories: this.currentFood.categories.split(","),
+					storage: this.currentFood.storage
               }).then(
                   (data) => {
                       console.log(data);
                       $('#modalEdit').modal('hide');
-                      this.words.push(data.data);
+                      this.foods.push(data.data);
                       this.$http.patch('http://192.168.1.14:8081/updatePackNumber/' + this.$route.params.packId +'/PLUS').then(
                           () => {},
                           (error) => {
@@ -204,50 +225,6 @@ export default {
                       console.log(error);
                   }
               );
-          }
-      },
-
-
-      learnAll(){
-          this.$store.state.revisionWords = this.words;
-          this.$router.push({
-              name: 'Revision'
-          })
-      },
-
-      learnSelected(){
-          this.$store.state.revisionWords = this.selectedWords;
-          this.$router.push({
-              name: 'Revision'
-          })
-      },
-
-      selectWords(word){
-          if(this.selectedWords.indexOf(word) >= 0){
-              this.selectedWords.splice(this.selectedWords.indexOf(word), 1);
-          } else {
-              this.selectedWords.push(word);
-          }
-          
-      },
-
-      allOrClean(){
-          if(this.selectedWords.length === this.words.length){
-              var inputs = document.getElementsByTagName("input");
-                for(var i = 0; i < inputs.length; i++) {
-                    if(inputs[i].type == "checkbox") {
-                        inputs[i].checked = false; 
-                    }  
-                }
-              this.selectedWords = [];
-          } else {
-              var inputs = document.getElementsByTagName("input");
-                for(var i = 0; i < inputs.length; i++) {
-                    if(inputs[i].type == "checkbox") {
-                        inputs[i].checked = true; 
-                    }  
-                }
-                this.selectedWords = this.words;
           }
       }
   }

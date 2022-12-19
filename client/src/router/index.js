@@ -5,6 +5,7 @@ import List from '@/components/List'
 import HelloWorld from '@/components/HelloWorld'
 import Revision from '@/components/Revision'
 import Recap from '@/components/Recap'
+import Kitchen from '@/components/Kitchen'
 
 Vue.use(Router)
 
@@ -34,6 +35,11 @@ export default new Router({
       path: '/recap',
       name: 'Recap',
       component: Recap
-    }
+    },
+	{
+	  path: '/kitchen',
+	  name: 'Kitchen',
+	  component: Kitchen
+	}
   ]
 })
